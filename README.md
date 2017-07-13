@@ -27,4 +27,5 @@
 1.使用本分类须设置clipsToBounds 而不是layer.maskToBounds,
   所以若不想使用本分类的UIImageView设置layer.maskToBounds则不会有任何影响.
 2.本分类兼容SDWebImage.
+3.iOS9之后, png图片在UIImageView中设置圆角不会触发离屏渲染, 此分类可以解决其他情况
 ```

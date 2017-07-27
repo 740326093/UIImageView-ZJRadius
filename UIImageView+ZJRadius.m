@@ -46,7 +46,6 @@ static bool _needClipsToBounds;
         } else {
             method_exchangeImplementations(originalMethod2, swizzledMethod2);
         }
-         
     });
 }
 

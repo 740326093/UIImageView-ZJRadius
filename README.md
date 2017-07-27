@@ -8,7 +8,7 @@
 ```
 原理: 
 利用Runtime的Method Swizzle交换系统的setClipsToBounds与setImage方法 
-若设置了layer.cornerRadius 且 clipsToBounds = YES, 则clipsToBounds不会设置为YES, 在设置image时会异步剪裁图片并显示
+若设置了layer.cornerRadius 且 clipsToBounds = YES, 则clipsToBounds不会设置为YES, 在设置image时会生成一个圆角的layer并遮盖UIImageView
 ```
  
  

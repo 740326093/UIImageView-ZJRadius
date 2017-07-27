@@ -26,6 +26,10 @@
 须知:
 1.使用本分类须设置clipsToBounds 而不是layer.maskToBounds,
   所以若不想使用本分类的UIImageView设置layer.maskToBounds则不会有任何影响.
-2.本分类兼容SDWebImage,但在UITableView、UICollectionView滑动中, 不断调用SDWebImage设置图片会导致图片闪烁(重复调用setter方法, 反复剪裁), 若频繁滑动的控件建议在设置图片时手动判断url有没有改变, 没有改变则不重复调用SDWebImage设置图片方法.
+2.本分类兼容SDWebImage.
 3.iOS9之后, png图片在UIImageView中设置圆角不会触发离屏渲染, 此分类可以解决其他情况
 ```
+
+~~在UITableView、UICollectionView滑动中, 不断调用SDWebImage设置图片会导致图片闪烁(重复调用setter方法, 反复剪裁), 若频繁滑动的控件建议在设置图片时手动判断url有没有改变, 没有改变则不重复调用SDWebImage设置图片方法~~
+
+#### 已解决!

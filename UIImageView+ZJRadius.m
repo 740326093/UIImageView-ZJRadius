@@ -18,33 +18,18 @@ static bool _needClipsToBounds;
     dispatch_once(&onceToken, ^{
         Class class = [self class];
         
-        SEL originalSelector1 = @selector(setClipsToBounds:);
-        SEL swizzledSelector1 = @selector(ZJ_setClipsToBounds:);
+        SEL originalSelector = @selector(setClipsToBounds:);
+        SEL swizzledSelector = @selector(ZJ_setClipsToBounds:);
         
-        Method originalMethod1 = class_getInstanceMethod(class, originalSelector1);
-        Method swizzledMethod1 = class_getInstanceMethod(class, swizzledSelector1);
+        Method originalMethod = class_getInstanceMethod(class, originalSelector);
+        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
         
-        BOOL didAddMethod1 = class_addMethod(class, originalSelector1, method_getImplementation(swizzledMethod1), method_getTypeEncoding(swizzledMethod1));
+        BOOL didAddMethod1 = class_addMethod(class, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod));
         
         if (didAddMethod1) {
-            class_replaceMethod(class, swizzledSelector1, method_getImplementation(originalMethod1), method_getTypeEncoding(originalMethod1));
+            class_replaceMethod(class, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
         } else {
-            method_exchangeImplementations(originalMethod1, swizzledMethod1);
-        }
-        
-        
-        SEL originalSelector2 = @selector(setImage:);
-        SEL swizzledSelector2 = @selector(ZJ_setImage:);
-        
-        Method originalMethod2 = class_getInstanceMethod(class, originalSelector2);
-        Method swizzledMethod2 = class_getInstanceMethod(class, swizzledSelector2);
-        
-        BOOL didAddMethod2 = class_addMethod(class, originalSelector2, method_getImplementation(swizzledMethod2), method_getTypeEncoding(swizzledMethod2));
-        
-        if (didAddMethod2) {
-            class_replaceMethod(class, swizzledSelector2, method_getImplementation(originalMethod2), method_getTypeEncoding(originalMethod2));
-        } else {
-            method_exchangeImplementations(originalMethod2, swizzledMethod2);
+            method_exchangeImplementations(originalMethod, swizzledMethod);
         }
     });
 }
@@ -53,25 +38,15 @@ static bool _needClipsToBounds;
 - (void)ZJ_setClipsToBounds:(BOOL)clipsToBounds{
     _needClipsToBounds = clipsToBounds;
     
-    if (self.layer.cornerRadius <= 0) { //若圆角为0 则允许maskT‚‚oBounds
+    if (self.layer.cornerRadius <= 0) { //若圆角为0 则允许maskToBounds
         [self ZJ_setClipsToBounds:clipsToBounds];
-    }
-}
-
-
-- (void)ZJ_setImage:(UIImage *)image{
-    
-    if (self.layer.cornerRadius > 0 && _needClipsToBounds) {
-        [self ZJ_maskImage:image];
     } else {
-        [self ZJ_setImage:image];
+        [self ZJ_maskCorner];
     }
 }
 
 
-- (void)ZJ_maskImage:(UIImage *)image{
-    
-    [self ZJ_setImage:image];
+- (void)ZJ_maskCorner{
     
     //创建一个圆角蒙版
     UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:self.bounds byRoundingCorners:UIRectCornerAllCorners cornerRadii:CGSizeMake(self.layer.cornerRadius, self.layer.cornerRadius)];

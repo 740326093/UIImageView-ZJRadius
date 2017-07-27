@@ -11,6 +11,7 @@
 
 @implementation UIImageView (ZJRadius)
 static bool _needClipsToBounds;
+static UIImage *_image;
 
 + (void)load{
     
@@ -54,7 +55,7 @@ static bool _needClipsToBounds;
 - (void)ZJ_setClipsToBounds:(BOOL)clipsToBounds{
     _needClipsToBounds = clipsToBounds;
     
-    if (self.layer.cornerRadius <= 0) { //若圆角为0 则允许maskToBounds
+    if (self.layer.cornerRadius <= 0) { //若圆角为0 则允许maskT‚‚oBounds
         [self ZJ_setClipsToBounds:clipsToBounds];
     }
 }
@@ -63,35 +64,26 @@ static bool _needClipsToBounds;
 - (void)ZJ_setImage:(UIImage *)image{
     
     if (self.layer.cornerRadius > 0 && _needClipsToBounds) {
-        [self ZJ_clipsImage:image];
+        [self ZJ_maskImage:image];
     } else {
         [self ZJ_setImage:image];
     }
 }
 
 
-- (void)ZJ_clipsImage:(UIImage *)image{
+- (void)ZJ_maskImage:(UIImage *)image{
     
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        
-        CGSize size = CGSizeMake(self.layer.cornerRadius * 2, self.layer.cornerRadius * 2);
-        CGRect rect = CGRectMake(0, 0, size.width, size.height);
+    [self ZJ_setImage:image];
     
-        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-
-        UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:rect];
-        [path addClip];
-        
-        [image drawInRect:rect];
-        
-        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-        
-        UIGraphicsEndImageContext();
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self ZJ_setImage:image];
-        });
-    });
+    //创建一个圆角蒙版
+    UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:self.bounds byRoundingCorners:UIRectCornerAllCorners cornerRadii:CGSizeMake(self.layer.cornerRadius, self.layer.cornerRadius)];
+    CAShapeLayer *maskLayer = [CAShapeLayer layer];
+    maskLayer.path = maskPath.CGPath;
+    maskLayer.frame = self.bounds;
+    maskLayer.fillColor = [UIColor whiteColor].CGColor;
+    
+    [self.layer addSublayer:maskLayer];
+    self.layer.mask = maskLayer;
 }
 
 @end

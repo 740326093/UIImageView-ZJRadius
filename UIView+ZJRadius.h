@@ -1,13 +1,13 @@
 //
-//  UIImageView+ZJRadius.h
+//  UIView+ZJRadius.h
 //  BulletAnalyzer
 //
-//  Created by 张骏 on 17/7/13.
+//  Created by 张骏 on 17/7/27.
 //  Copyright © 2017年 Zj. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@interface UIImageView (ZJRadius)
+@interface UIView (ZJRadius)
 
 @end

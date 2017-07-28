@@ -1,15 +1,15 @@
 //
-//  UIImageView+ZJRadius.m
+//  UIView+ZJRadius.m
 //  BulletAnalyzer
 //
-//  Created by 张骏 on 17/7/13.
+//  Created by 张骏 on 17/7/27.
 //  Copyright © 2017年 Zj. All rights reserved.
 //
 
-#import "UIImageView+ZJRadius.h"
+#import "UIView+ZJRadius.h"
 #import <objc/runtime.h>
 
-@implementation UIImageView (ZJRadius)
+@implementation UIView (ZJRadius)
 
 + (void)load{
     
@@ -32,8 +32,8 @@
         }
         
         
-        SEL originalSelector2 = @selector(setImage:);
-        SEL swizzledSelector2 = @selector(ZJ_setImage:);
+        SEL originalSelector2 = @selector(layoutSubviews);
+        SEL swizzledSelector2 = @selector(ZJ_layoutSubviews);
         
         Method originalMethod2 = class_getInstanceMethod(class, originalSelector2);
         Method swizzledMethod2 = class_getInstanceMethod(class, swizzledSelector2);
@@ -49,57 +49,28 @@
 }
 
 
-- (void)setOrginImage:(UIImage *)orginImage{
-    objc_setAssociatedObject(self, @"orginImage", orginImage, OBJC_ASSOCIATION_RETAIN);
-}
-
-
-- (UIImage *)orginImage{
-    return objc_getAssociatedObject(self, @"orginImage");
-}
-
-
-- (void)setClipsCorner:(BOOL)clipsCorner{
-    objc_setAssociatedObject(self, @"clipsCorner", @(clipsCorner), OBJC_ASSOCIATION_RETAIN);
-}
-
-
-- (BOOL)isClipsCorner{
-    return [objc_getAssociatedObject(self, @"clipsCorner") boolValue];
-}
-
-
 - (void)ZJ_setClipsToBounds:(BOOL)clipsToBounds{
-    
-    self.clipsCorner = clipsToBounds;
     
     if (self.layer.cornerRadius <= 0) { //若圆角为0 则允许maskToBounds
         [self ZJ_setClipsToBounds:clipsToBounds];
-    }
-}
-
-
-- (void)ZJ_setImage:(UIImage *)image{
-    
-    if ([self.orginImage isEqual:image] || !image) {
-        return;
-    };
-    self.orginImage = image;
-    
-    if (self.layer.cornerRadius > 0 && self.isClipsCorner) {
-        [self ZJ_clipsImage:image];
     } else {
-        [self ZJ_setImage:image];
+        [self ZJ_maskCorner];
     }
 }
 
 
-- (void)ZJ_clipsImage:(UIImage *)image{
+- (void)ZJ_layoutSubviews{
+    [self ZJ_layoutSubviews];
     
-    //创建一个的layer显示
+    if (self.layer.cornerRadius > 0) {
+    }
+}
+
+
+- (void)ZJ_maskCorner{
+    
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        
-        /*
+
         UIImageView *imageView;
         for (UIView *subView in self.subviews) {
             if (subView.tag == 10241024) {
@@ -118,31 +89,31 @@
                 [self addSubview:imageView];
             });
         }
-        */
-        
-        UIColor *orginColor = self.backgroundColor;
-        self.backgroundColor = [UIColor clearColor];
         
         CGSize size = CGSizeMake(self.layer.cornerRadius * 2, self.layer.cornerRadius * 2);
         CGRect rect = CGRectMake(0, 0, size.width, size.height);
         
-        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+        UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
+
+        CALayer *bgLayer = [CALayer layer];
+        bgLayer.backgroundColor = self.backgroundColor.CGColor;
+        bgLayer.frame = self.bounds;
         
+        [bgLayer renderInContext:UIGraphicsGetCurrentContext()];
+         
         UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:rect];
         [path addClip];
         
-        [image drawInRect:rect];
+        [self.layer renderInContext:UIGraphicsGetCurrentContext()];
         
-        UIImage *drawImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         
         UIGraphicsEndImageContext();
-        self.backgroundColor = orginColor;
-    
+        
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self ZJ_setImage:drawImage];
+            imageView.image = image;
         });
     });
 }
-
 
 @end

@@ -1,4 +1,4 @@
-# UIImageView UIView圆角与性能之间的研究与优化针对UIImageView圆角设置性能优化分类
+# UIImageView UIView圆角与性能之间的研究与优化
 
 
 ### 设想:
@@ -10,10 +10,6 @@
 1.生成一个圆形的CALayer作为UIImageView.layer.mask.
 2.异步剪裁图片.
 (以上方法均为网络上流传性能优化方法)
-
-3.生成一个UIImageView, 把原来的图像画在上面.
-4.生成一个CALayer, 把原来的图像画在上面.
-(自己)
 ```
  
  
